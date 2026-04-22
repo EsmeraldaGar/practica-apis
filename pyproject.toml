@@ -9,5 +9,11 @@ dependencies = [
     "fastapi>=0.136.0",
     "httpx>=0.28.1",
     "pandas>=3.0.2",
+    "pydantic>=2.13.2",
     "uvicorn>=0.44.0",
+]
+
+[dependency-groups]
+dev = [
+    "commitizen>=4.13.10",
 ]

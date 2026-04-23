@@ -17,7 +17,7 @@ API_KEY = os.getenv("API_KEY")
 
 
 # modelo Pydantic
-class SanapshotRequest(BaseModel):
+class SnapshotRequest(BaseModel):
     ciudad: str
     nota: Optional[str] = None
 
@@ -25,8 +25,11 @@ class SanapshotRequest(BaseModel):
 
  # extraer la llamada a OpenWeatherMap a una función auxiliar reutilizable para get y post
 async def obtener_datos_clima(ciudad: str):
+    
+    
+    
     # la construccion de la url weathermap
-    url = "http://api.openweathermap.org/data/2.5/weather"
+    url = "https://api.openweathermap.org/data/2.5/weather"
 
     # ?q=London,uk&APPID=a7064514ee7eb431bc63683bfca93ddb
     params = {
@@ -35,8 +38,11 @@ async def obtener_datos_clima(ciudad: str):
         "units": "metric", # temperatura en cels
         "lang": "es" # descripciones en español
     }
+    en_lambda = os.environ.get("AWS_EXECUTION_ENV") is not None
+    verify_ssl = en_lambda
+    
     try:
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(verify=verify_ssl) as client:
             response = await client.get(url, params=params)
 
             response.raise_for_status() # http es codigo 404
@@ -61,7 +67,7 @@ async def obtener_clima(ciudad: str = Query(..., description= "Nombre de la ciud
 
 
 @app.post("/clima/snapshot")
-async def crear_snapshot(request: SanapshotRequest):
+async def crear_snapshot(request: SnapshotRequest):
     
     # ontener datos con funcion auxiliar 
     clima_data = await obtener_datos_clima(request.ciudad)
@@ -97,7 +103,7 @@ async def crear_snapshot(request: SanapshotRequest):
         "mensaje": "Snapshot se guardo",
         "archivo": str(ruta_archivo),
         "temperatura": temperatura,
-        "description": descripcion,
+        "descripcion": descripcion,
         "timestamp": timestamp_utc
         
     }
@@ -129,14 +135,14 @@ async def listar_snapshots(ciudad: str):
             nota = datos.get("nota")
             clima = datos.get("clima", {})
             temperatura =clima.get("main", {}).get("temp")
-            description = clima.get("weather", [{}])[0].get("descrption")
+            description = clima.get("weather", [{}])[0].get("description")
             
             snapshots.append({
                 "archivo": archivo.name,
                 "timestamp": timestamp,
                 "nota": nota,
                 "temperatura": temperatura,
-                "description": description
+                "descripcion": description
             })
             
         except Exception as e:
@@ -148,7 +154,6 @@ async def listar_snapshots(ciudad: str):
                 
                 
     
-
 
 
 

@@ -26,13 +26,14 @@ Para instalas AWS CLI se deben pedir permisos de administrador en: https://nttli
 La API está desplegada en AWS Lambda + S3 con Function URL pública.
 
 ### Arquitectura
-
+```text
 Cliente → Function URL (HTTPS)
 │
 ├─▶ Lambda (Python 3.13)
 │ ├─▶ OpenWeatherMap (HTTPS)
 │ └─▶ S3 (snapshots)
 └─▶ CloudWatch Logs
+```
 
 ### Requisitos previos para desplegar
  
@@ -49,6 +50,7 @@ Cliente → Function URL (HTTPS)
 - **GET /clima/snapshots/{ciudad}** → lista los snapshots guardados.
 
 ### Estructura del proyecto
+```text
 practica-apis
 |
 ├── src/
@@ -64,6 +66,7 @@ practica-apis
 ├── pyproject.toml # Dependencias (uv)
 ├── .env # API_KEY (solo local)
 └── README.md
+```
 
 ### Despliegue desde cero 
  
